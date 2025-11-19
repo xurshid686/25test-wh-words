@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Test - Wh-words</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .screen {
+            transition: all 0.3s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            color: #856404;
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .warning {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .questions-grid {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .question {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-number {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 700;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .timer.normal {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .timer.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
+        .timer.danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .student-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .leave-warning {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .completion-icon {
+            font-size: 4em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e1e5e9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e5e9;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 1s ease;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen">
+            <h1>English Test</h1>
+            <p class="subtitle">Wh-words Assessment</p>
+            
+            <div class="instructions">
+                <h3>📋 Test Instructions</h3>
+                <ul>
+                    <li>This test contains <strong>25 questions</strong> about Wh-words</li>
+                    <li>All questions are multiple choice</li>
+                    <li>You have <strong class="warning">10 minutes</strong> to complete the test</li>
+                    <li>The test will automatically submit when time is up</li>
+                    <li class="warning">⚠️ Important: If you leave this page more than 3 times, your test will be automatically submitted</li>
+                    <li>You cannot return to the test after submission</li>
+                    <li>Results will be available from your teacher</li>
+                </ul>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentName">Enter Your Full Name:</label>
+                <input type="text" id="studentName" placeholder="e.g., John Smith" required>
+            </div>
+            <button class="btn" onclick="startTest()">Start Test</button>
+        </div>
+
+        <!-- Test Screen -->
+        <div id="testScreen" class="screen hidden">
+            <h1>Wh-words Test</h1>
+            
+            <div class="student-info">
+                <div class="info-item">👤 Student: <strong id="currentStudentName"></strong></div>
+                <div class="info-item">⏰ Time Left: <strong id="timerDisplay">10:00</strong></div>
+                <div class="info-item">🚪 Leaves: <strong id="leaveCount">0/3</strong></div>
+            </div>
+
+            <div class="progress-bar">
+                <div id="timeProgress" class="progress"></div>
+            </div>
+
+            <div id="leaveWarning" class="leave-warning">
+                ⚠️ Warning! You have left the page. If you leave more than 3 times, your test will be automatically submitted.
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+            
+            <div class="questions-grid" id="questionsContainer"></div>
+            
+            <div class="submit-section">
+                <button class="btn" onclick="submitTest()" id="submitBtn">Submit Test</button>
+                <p style="margin-top: 10px; color: #666;">Please review all questions before submitting</p>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="screen hidden loading">
+            <div class="spinner"></div>
+            <h3>Submitting Your Test...</h3>
+            <p>Please wait while we process your results.</p>
+        </div>
+
+        <!-- Completion Screen -->
+        <div id="completionScreen" class="screen hidden completion-screen">
+            <div class="completion-icon">✅</div>
+            <h2>Test Submitted Successfully!</h2>
+            <p>Thank you for completing the test, <span id="completedStudentName"></span>!</p>
+            <div class="student-info">
+                <p><strong>To know your results, please reach your teacher.</strong></p>
+                <p>Your test has been recorded and will be reviewed shortly.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test configuration
+        const CONFIG = {
+            totalTime: 10 * 60, // 10 minutes in seconds
+            maxLeaves: 3,
+            questions: [
+                {
+                    question: "__________ is your name?",
+                    options: ["Where", "What", "When", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is the library? It's next to the school.",
+                    options: ["When", "Who", "Where", "Why"],
+                    correct: 2
+                },
+                {
+                    question: "__________ is your teacher? Mr. Johnson is my teacher.",
+                    options: ["What", "Who", "Whose", "Which"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is your birthday? It's in June.",
+                    options: ["Where", "When", "What", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ are you happy? Because I got a new bike!",
+                    options: ["Why", "Where", "When", "What"],
+                    correct: 0
+                },
+                {
+                    question: "__________ pencil is this? Is it Anna's?",
+                    options: ["Who", "When", "Whose", "Which"],
+                    correct: 2
+                },
+                {
+                    question: "__________ color do you like better, red or blue?",
+                    options: ["What", "When", "Which", "Whose"],
+                    correct: 2
+                },
+                {
+                    question: "__________ do you do after school? I play soccer.",
+                    options: ["What", "When", "Where", "Why"],
+                    correct: 0
+                },
+                {
+                    question: "__________ do you eat lunch? At 12:30.",
+                    options: ["Where", "What", "When", "Who"],
+                    correct: 2
+                },
+                {
+                    question: "__________ is that woman? She's my aunt.",
+                    options: ["Which", "Whose", "Who", "Why"],
+                    correct: 2
+                },
+                {
+                    question: "__________ is your favorite movie?",
+                    options: ["What", "Who", "Whose", "Where"],
+                    correct: 0
+                },
+                {
+                    question: "__________ are my keys? They are on the table.",
+                    options: ["When", "Where", "What", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ book is this? It's mine.",
+                    options: ["Who", "Whose", "Which", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ one is your brother? The boy with the red shirt.",
+                    options: ["What", "Who", "Whose", "Which"],
+                    correct: 3
+                },
+                {
+                    question: "__________ are you going to the park? Because I want to play.",
+                    options: ["Why", "Where", "When", "What"],
+                    correct: 0
+                },
+                {
+                    question: "__________ do you live? I live in London.",
+                    options: ["Where", "When", "What", "Why"],
+                    correct: 0
+                },
+                {
+                    question: "__________ is the problem? I can't find my phone.",
+                    options: ["When", "What", "Who", "Whose"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is your test? On Monday.",
+                    options: ["Where", "When", "What", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is that man's job? He is a chef.",
+                    options: ["What", "Who", "Whose", "Which"],
+                    correct: 0
+                },
+                {
+                    question: "__________ bag is heavier, yours or mine?",
+                    options: ["Who", "Which", "Whose", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ are you from? I'm from Brazil.",
+                    options: ["When", "Where", "What", "Who"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is crying? The baby is crying.",
+                    options: ["What", "Why", "Who", "Whose"],
+                    correct: 2
+                },
+                {
+                    question: "__________ do you call your grandmother? Every Sunday.",
+                    options: ["When", "Where", "How often", "Why"],
+                    correct: 0
+                },
+                {
+                    question: "__________ is your address?",
+                    options: ["What", "Where", "When", "Why"],
+                    correct: 0
+                },
+                {
+                    question: "__________ is your favorite singer? Taylor Swift.",
+                    options: ["Which", "Who", "Whose", "What"],
+                    correct: 1
+                }
+            ]
+        };
+
+        // Application state
+        let state = {
+            studentName: '',
+            startTime: null,
+            timeLeft: CONFIG.totalTime,
+            leaveCount: 0,
+            answers: {},
+            testSubmitted: false,
+            timerInterval: null
+        };
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            
+            // Enter key support for login
+            document.getElementById('studentName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startTest();
+                }
+            });
+        });
+
+        function handleVisibilityChange() {
+            if (document.hidden && !state.testSubmitted && state.startTime) {
+                handlePageLeave();
+            }
+        }
+
+        function handleBeforeUnload(e) {
+            if (!state.testSubmitted && state.startTime) {
+                e.preventDefault();
+                e.returnValue = 'Your test progress will be lost if you leave this page. Are you sure?';
+            }
+        }
+
+        function handlePageLeave() {
+            state.leaveCount++;
+            updateLeaveCounter();
+            
+            if (state.leaveCount <= CONFIG.maxLeaves) {
+                showLeaveWarning();
+            }
+            
+            if (state.leaveCount > CONFIG.maxLeaves) {
+                alert('You have left the page too many times. Your test is being submitted automatically.');
+                submitTest();
+            }
+        }
+
+        function showLeaveWarning() {
+            const warning = document.getElementById('leaveWarning');
+            warning.style.display = 'block';
+            setTimeout(() => {
+                warning.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateLeaveCounter() {
+            document.getElementById('leaveCount').textContent = `${state.leaveCount}/${CONFIG.maxLeaves}`;
+        }
+
+        function startTest() {
+            const nameInput = document.getElementById('studentName');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                alert('Please enter your name to start the test.');
+                nameInput.focus();
+                return;
+            }
+
+            state.studentName = name;
+            state.startTime = new Date();
+            
+            showScreen('testScreen');
+            document.getElementById('currentStudentName').textContent = name;
+            
+            startTimer();
+            renderQuestions();
+            updateLeaveCounter();
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            
+            state.timerInterval = setInterval(() => {
+                state.timeLeft--;
+                updateTimerDisplay();
+                
+                if (state.timeLeft <= 0) {
+                    clearInterval(state.timerInterval);
+                    alert('Time is up! Your test is being submitted automatically.');
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(state.timeLeft / 60).toString().padStart(2, '0');
+            const seconds = (state.timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').textContent = `${minutes}:${seconds}`;
+            
+            // Update progress bar
+            const progressPercentage = (state.timeLeft / CONFIG.totalTime) * 100;
+            document.getElementById('timeProgress').style.width = `${progressPercentage}%`;
+            
+            // Update timer style
+            updateTimerStyle();
+        }
+
+        function updateTimerStyle() {
+            const timer = document.getElementById('timerDisplay');
+            timer.className = 'timer ';
+            
+            if (state.timeLeft > 300) {
+                timer.classList.add('normal');
+            } else if (state.timeLeft > 60) {
+                timer.classList.add('warning');
+            } else {
+                timer.classList.add('danger');
+            }
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            let html = '';
+            
+            CONFIG.questions.forEach((question, index) => {
+                html += `
+                    <div class="question">
+                        <div class="question-number">Question ${index + 1}</div>
+                        <div class="question-text">${question.question}</div>
+                        <div class="options">
+                `;
+                
+                question.options.forEach((option, optIndex) => {
+                    const isSelected = state.answers[index] === optIndex;
+                    html += `
+                        <div class="option ${isSelected ? 'selected' : ''}" 
+                             onclick="selectAnswer(${index}, ${optIndex})">
+                            ${String.fromCharCode(65 + optIndex)}) ${option}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function selectAnswer(questionIndex, optionIndex) {
+            state.answers[questionIndex] = optionIndex;
+            renderQuestions(); // Re-render to update selections
+        }
+
+        async function submitTest() {
+            if (state.testSubmitted) return;
+            
+            state.testSubmitted = true;
+            clearInterval(state.timerInterval);
+            
+            showScreen('loadingScreen');
+
+            // Prepare test data
+            const testData = {
+                studentName: state.studentName,
+                startTime: state.startTime.toISOString(),
+                endTime: new Date().toISOString(),
+                timeSpent: CONFIG.totalTime - state.timeLeft,
+                timeLeft: state.timeLeft,
+                leaveCount: state.leaveCount,
+                answers: state.answers,
+                questions: CONFIG.questions.map((q, index) => ({
+                    question: q.question,
+                    options: q.options,
+                    selected: state.answers[index],
+                    correct: q.correct
+                }))
+            };
+
+            try {
+                console.log('Submitting test data:', testData);
+                
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Response data:', result);
+                
+                if (result.success) {
+                    showCompletionScreen();
+                } else {
+                    throw new Error(result.error || 'Submission failed');
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showError('There was an error submitting your test. Please try again. Error: ' + error.message);
+            }
+        }
+
+        function showCompletionScreen() {
+            document.getElementById('completedStudentName').textContent = state.studentName;
+            showScreen('completionScreen');
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            showScreen('testScreen');
+            state.testSubmitted = false;
+            
+            // Restart timer if there's time left
+            if (state.timeLeft > 0) {
+                startTimer();
+            }
+        }
+
+        function showScreen(screenName) {
+            // Hide all screens
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('testScreen').classList.add('hidden');
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('completionScreen').classList.add('hidden');
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Show target screen
+            document.getElementById(screenName).classList.remove('hidden');
+        }
+
+        // Make functions globally available
+        window.startTest = startTest;
+        window.submitTest = submitTest;
+        window.selectAnswer = selectAnswer;
+    </script>
+</body>
+</html>
