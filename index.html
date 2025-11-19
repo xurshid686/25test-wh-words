@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>English Test - Wh-words</title>
     <style>
         * {
@@ -13,57 +13,49 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0;
+            line-height: 1.5;
         }
 
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 30px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 10px;
             color: #333;
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: clamp(1.8rem, 5vw, 2.2rem);
+            font-weight: 700;
         }
 
         .subtitle {
             text-align: center;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
+            font-size: clamp(1rem, 3vw, 1.1rem);
         }
 
-        .instructions {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 10px;
+        .screen {
+            flex: 1;
             padding: 20px;
-            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        .instructions h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .warning {
-            color: #dc3545;
-            font-weight: bold;
+        .hidden {
+            display: none !important;
         }
 
         .form-group {
@@ -74,83 +66,116 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+            padding: 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
             font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: #fff;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
+            padding: 18px 24px;
+            border-radius: 12px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
             width: 100%;
-            margin-top: 20px;
+            margin-top: auto;
+            min-height: 60px;
+            touch-action: manipulation;
         }
 
-        .student-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
+        .btn:hover, .btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
-        .timer {
-            font-size: 1.2em;
-            font-weight: bold;
-            padding: 10px 15px;
-            border-radius: 8px;
-            background: #d4edda;
-            color: #155724;
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        .timer.warning {
+        .instructions {
             background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .instructions h3 {
             color: #856404;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
         }
 
-        .timer.danger {
-            background: #f8d7da;
-            color: #721c24;
-            animation: pulse 1s infinite;
+        .instructions ul {
+            color: #856404;
+            margin-left: 20px;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        .instructions li {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .warning {
+            color: #dc3545;
+            font-weight: 600;
         }
 
         .questions-container {
-            max-height: 60vh;
+            flex: 1;
             overflow-y: auto;
-            margin-bottom: 20px;
+            padding: 8px 4px;
+            margin-bottom: 16px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .question {
             background: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 16px;
             padding: 20px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .question:last-child {
+            margin-bottom: 0;
         }
 
         .question-number {
             font-weight: 600;
             color: #667eea;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: #333;
+            font-weight: 500;
+            line-height: 1.4;
         }
 
         .options {
@@ -159,36 +184,161 @@
         }
 
         .option {
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            touch-action: manipulation;
+            user-select: none;
         }
 
-        .option:hover {
+        .option:hover, .option:active {
             border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-1px);
         }
 
         .option.selected {
+            border-color: #667eea;
             background: #667eea;
             color: white;
-            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .timer-container {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .timer {
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .timer.normal {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .timer.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+            animation: pulse 2s infinite;
+        }
+
+        .timer.danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .student-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .leave-warning {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+            border: 1px solid #f5c6cb;
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            color: #4CAF50;
+            margin-bottom: 24px;
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 2px solid #e1e5e9;
+        }
+
+        .progress-container {
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e5e9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 1s ease;
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
         }
 
         .spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #667eea;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 24px;
         }
 
         @keyframes spin {
@@ -196,29 +346,105 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error {
+        .error-message {
             background: #f8d7da;
             color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 16px 0;
             text-align: center;
             display: none;
+            font-size: 0.95rem;
         }
 
+        /* Mobile-specific optimizations */
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                border-radius: 0;
-            }
-            
-            body {
-                padding: 0;
+            .screen {
+                padding: 16px;
             }
             
             .student-info {
-                flex-direction: column;
-                gap: 10px;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .info-item {
+                font-size: 0.85rem;
+            }
+            
+            .question {
+                padding: 16px;
+            }
+            
+            .option {
+                padding: 14px;
+                min-height: 56px;
+                font-size: 0.95rem;
+            }
+            
+            .timer {
+                font-size: 1.2rem;
+                padding: 14px 18px;
+                min-width: 110px;
+            }
+            
+            .btn {
+                padding: 16px 20px;
+                min-height: 56px;
+                font-size: 17px;
+            }
+            
+            .instructions {
+                padding: 16px;
+            }
+            
+            .instructions li {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .screen {
+                padding: 12px;
+            }
+            
+            .question {
+                padding: 14px;
+            }
+            
+            .option {
+                padding: 12px;
+                min-height: 52px;
+                font-size: 0.9rem;
+            }
+            
+            .student-info {
+                padding: 12px;
+            }
+            
+            .info-item {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Prevent zoom on input focus for iOS */
+        @media screen and (max-width: 768px) {
+            input[type="text"] {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        /* Better scrolling for iOS */
+        .questions-container {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Safe area insets for notch phones */
+        @supports(padding: max(0px)) {
+            .container {
+                padding-left: max(12px, env(safe-area-inset-left));
+                padding-right: max(12px, env(safe-area-inset-right));
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
             }
         }
     </style>
@@ -226,233 +452,437 @@
 <body>
     <div class="container">
         <!-- Login Screen -->
-        <div id="loginScreen" class="screen active">
-            <h1>English Test</h1>
-            <p class="subtitle">Wh-words Assessment</p>
-            
-            <div class="instructions">
-                <h3>📋 Test Instructions</h3>
-                <ul>
-                    <li>25 questions about Wh-words</li>
-                    <li>10 minute time limit</li>
-                    <li>Auto-submits when time expires</li>
-                    <li class="warning">Max 3 page leaves allowed</li>
-                    <li>Results available from teacher</li>
-                </ul>
+        <div id="loginScreen" class="screen">
+            <div>
+                <h1>English Test</h1>
+                <p class="subtitle">Wh-words Assessment</p>
+                
+                <div class="instructions">
+                    <h3>📋 Test Instructions</h3>
+                    <ul>
+                        <li>This test contains <strong>25 questions</strong> about Wh-words</li>
+                        <li>All questions are multiple choice</li>
+                        <li>You have <strong class="warning">10 minutes</strong> to complete the test</li>
+                        <li>The test will automatically submit when time is up</li>
+                        <li class="warning">⚠️ Important: If you leave this page more than 3 times, your test will be automatically submitted</li>
+                        <li>You cannot return to the test after submission</li>
+                        <li>Results will be available from your teacher</li>
+                    </ul>
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentName">Enter Your Full Name:</label>
+                    <input type="text" id="studentName" placeholder="e.g., John Smith" required>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="studentName">Enter Your Full Name:</label>
-                <input type="text" id="studentName" placeholder="John Smith" required>
-            </div>
-            
             <button class="btn" onclick="startTest()">Start Test</button>
         </div>
 
         <!-- Test Screen -->
-        <div id="testScreen" class="screen">
-            <h1>Wh-words Test</h1>
-            
-            <div class="student-info">
-                <div>Student: <strong id="currentStudentName"></strong></div>
-                <div>Time: <strong id="timerDisplay" class="timer">10:00</strong></div>
-                <div>Leaves: <strong id="leaveCount">0/3</strong></div>
-            </div>
+        <div id="testScreen" class="screen hidden">
+            <div>
+                <h1>Wh-words Test</h1>
+                
+                <div class="student-info">
+                    <div class="info-item">👤 Student: <strong id="currentStudentName"></strong></div>
+                    <div class="info-item">⏰ Time Left: <strong id="timerDisplay">10:00</strong></div>
+                    <div class="info-item">🚪 Leaves: <strong id="leaveCount">0/3</strong></div>
+                </div>
 
-            <div id="errorMessage" class="error"></div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="timeProgress" class="progress"></div>
+                    </div>
+                </div>
+
+                <div id="leaveWarning" class="leave-warning">
+                    ⚠️ Warning! You have left the page. If you leave more than 3 times, your test will be automatically submitted.
+                </div>
+
+                <div id="errorMessage" class="error-message"></div>
+                
+                <div class="questions-container" id="questionsContainer"></div>
+            </div>
             
-            <div class="questions-container" id="questionsContainer"></div>
-            
-            <button class="btn" onclick="submitTest()">Submit Test</button>
+            <div class="submit-section">
+                <button class="btn" onclick="submitTest()" id="submitBtn">Submit Test</button>
+                <p style="margin-top: 12px; color: #666; font-size: 0.9rem;">Please review all questions before submitting</p>
+            </div>
         </div>
 
         <!-- Loading Screen -->
-        <div id="loadingScreen" class="screen">
-            <div class="loading">
-                <div class="spinner"></div>
-                <h3>Submitting Test...</h3>
-                <p>Please wait...</p>
-            </div>
+        <div id="loadingScreen" class="screen hidden loading">
+            <div class="spinner"></div>
+            <h3>Submitting Your Test...</h3>
+            <p>Please wait while we process your results.</p>
         </div>
 
         <!-- Completion Screen -->
-        <div id="completionScreen" class="screen">
-            <div style="text-align: center; padding: 40px 20px;">
-                <div style="font-size: 4em; color: #4CAF50; margin-bottom: 20px;">✅</div>
-                <h2>Test Submitted!</h2>
-                <p>Thank you, <strong id="completedStudentName"></strong>!</p>
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 20px;">
-                    <p><strong>Contact your teacher for results</strong></p>
-                </div>
+        <div id="completionScreen" class="screen hidden completion-screen">
+            <div class="completion-icon">✅</div>
+            <h2>Test Submitted Successfully!</h2>
+            <p>Thank you for completing the test, <span id="completedStudentName"></span>!</p>
+            <div class="student-info" style="margin-top: 20px;">
+                <p><strong>To know your results, please reach your teacher.</strong></p>
+                <p>Your test has been recorded and will be reviewed shortly.</p>
             </div>
         </div>
     </div>
 
     <script>
-        const QUESTIONS = [
-            { question: "__________ is your name?", options: ["Where", "What", "When", "Why"], correct: 1 },
-            { question: "__________ is the library?", options: ["When", "Who", "Where", "Why"], correct: 2 },
-            { question: "__________ is your teacher?", options: ["What", "Who", "Whose", "Which"], correct: 1 },
-            { question: "__________ is your birthday?", options: ["Where", "When", "What", "Why"], correct: 1 },
-            { question: "__________ are you happy?", options: ["Why", "Where", "When", "What"], correct: 0 },
-            { question: "__________ pencil is this?", options: ["Who", "When", "Whose", "Which"], correct: 2 },
-            { question: "__________ color do you like better?", options: ["What", "When", "Which", "Whose"], correct: 2 },
-            { question: "__________ do you do after school?", options: ["What", "When", "Where", "Why"], correct: 0 },
-            { question: "__________ do you eat lunch?", options: ["Where", "What", "When", "Who"], correct: 2 },
-            { question: "__________ is that woman?", options: ["Which", "Whose", "Who", "Why"], correct: 2 },
-            { question: "__________ is your favorite movie?", options: ["What", "Who", "Whose", "Where"], correct: 0 },
-            { question: "__________ are my keys?", options: ["When", "Where", "What", "Why"], correct: 1 },
-            { question: "__________ book is this?", options: ["Who", "Whose", "Which", "Why"], correct: 1 },
-            { question: "__________ one is your brother?", options: ["What", "Who", "Whose", "Which"], correct: 3 },
-            { question: "__________ are you going to the park?", options: ["Why", "Where", "When", "What"], correct: 0 },
-            { question: "__________ do you live?", options: ["Where", "When", "What", "Why"], correct: 0 },
-            { question: "__________ is the problem?", options: ["When", "What", "Who", "Whose"], correct: 1 },
-            { question: "__________ is your test?", options: ["Where", "When", "What", "Why"], correct: 1 },
-            { question: "__________ is that man's job?", options: ["What", "Who", "Whose", "Which"], correct: 0 },
-            { question: "__________ bag is heavier?", options: ["Who", "Which", "Whose", "Why"], correct: 1 },
-            { question: "__________ are you from?", options: ["When", "Where", "What", "Who"], correct: 1 },
-            { question: "__________ is crying?", options: ["What", "Why", "Who", "Whose"], correct: 2 },
-            { question: "__________ do you usually do on weekends?", options: ["What", "When", "Where", "Why"], correct: 0 },
-            { question: "__________ is your address?", options: ["What", "Where", "When", "Why"], correct: 0 },
-            { question: "__________ is your favorite singer?", options: ["Which", "Who", "Whose", "What"], correct: 1 }
-        ];
-
-        let studentName = '';
-        let startTime = null;
-        let timeLeft = 600; // 10 minutes
-        let leaveCount = 0;
-        let answers = {};
-        let timerInterval = null;
-        let testSubmitted = false;
-
-        // Event listeners
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && !testSubmitted && startTime) {
-                leaveCount++;
-                document.getElementById('leaveCount').textContent = `${leaveCount}/3`;
-                
-                if (leaveCount > 3) {
-                    alert('Too many page leaves! Submitting test...');
-                    submitTest();
+        // Test configuration
+        const CONFIG = {
+            totalTime: 10 * 60, // 10 minutes in seconds
+            maxLeaves: 3,
+            questions: [
+                {
+                    question: "__________ is your name?",
+                    options: ["Where", "What", "When", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is the library? It's next to the school.",
+                    options: ["When", "Who", "Where", "Why"],
+                    correct: 2
+                },
+                {
+                    question: "__________ is your teacher? Mr. Johnson is my teacher.",
+                    options: ["What", "Who", "Whose", "Which"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is your birthday? It's in June.",
+                    options: ["Where", "When", "What", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ are you happy? Because I got a new bike!",
+                    options: ["Why", "Where", "When", "What"],
+                    correct: 0
+                },
+                {
+                    question: "__________ pencil is this? Is it Anna's?",
+                    options: ["Who", "When", "Whose", "Which"],
+                    correct: 2
+                },
+                {
+                    question: "__________ color do you like better, red or blue?",
+                    options: ["What", "When", "Which", "Whose"],
+                    correct: 2
+                },
+                {
+                    question: "__________ do you do after school? I play soccer.",
+                    options: ["What", "When", "Where", "Why"],
+                    correct: 0
+                },
+                {
+                    question: "__________ do you eat lunch? At 12:30.",
+                    options: ["Where", "What", "When", "Who"],
+                    correct: 2
+                },
+                {
+                    question: "__________ is that woman? She's my aunt.",
+                    options: ["Which", "Whose", "Who", "Why"],
+                    correct: 2
+                },
+                {
+                    question: "__________ is your favorite movie?",
+                    options: ["What", "Who", "Whose", "Where"],
+                    correct: 0
+                },
+                {
+                    question: "__________ are my keys? They are on the table.",
+                    options: ["When", "Where", "What", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ book is this? It's mine.",
+                    options: ["Who", "Whose", "Which", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ one is your brother? The boy with the red shirt.",
+                    options: ["What", "Who", "Whose", "Which"],
+                    correct: 3
+                },
+                {
+                    question: "__________ are you going to the park? Because I want to play.",
+                    options: ["Why", "Where", "When", "What"],
+                    correct: 0
+                },
+                {
+                    question: "__________ do you live? I live in London.",
+                    options: ["Where", "When", "What", "Why"],
+                    correct: 0
+                },
+                {
+                    question: "__________ is the problem? I can't find my phone.",
+                    options: ["When", "What", "Who", "Whose"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is your test? On Monday.",
+                    options: ["Where", "When", "What", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is that man's job? He is a chef.",
+                    options: ["What", "Who", "Whose", "Which"],
+                    correct: 0
+                },
+                {
+                    question: "__________ bag is heavier, yours or mine?",
+                    options: ["Who", "Which", "Whose", "Why"],
+                    correct: 1
+                },
+                {
+                    question: "__________ are you from? I'm from Brazil.",
+                    options: ["When", "Where", "What", "Who"],
+                    correct: 1
+                },
+                {
+                    question: "__________ is crying? The baby is crying.",
+                    options: ["What", "Why", "Who", "Whose"],
+                    correct: 2
+                },
+                {
+                    question: "__________ do you call your grandmother? Every Sunday.",
+                    options: ["When", "Where", "How often", "Why"],
+                    correct: 0
+                },
+                {
+                    question: "__________ is your address?",
+                    options: ["What", "Where", "When", "Why"],
+                    correct: 0
+                },
+                {
+                    question: "__________ is your favorite singer? Taylor Swift.",
+                    options: ["Which", "Who", "Whose", "What"],
+                    correct: 1
                 }
-            }
+            ]
+        };
+
+        // Application state
+        let state = {
+            studentName: '',
+            startTime: null,
+            timeLeft: CONFIG.totalTime,
+            leaveCount: 0,
+            answers: {},
+            testSubmitted: false,
+            timerInterval: null
+        };
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            
+            // Enter key support for login
+            document.getElementById('studentName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startTest();
+                }
+            });
+
+            // Prevent pull-to-refresh on mobile
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            console.log('Test application initialized for mobile');
         });
 
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            document.getElementById(screenId).classList.add('active');
+        function handleVisibilityChange() {
+            if (document.hidden && !state.testSubmitted && state.startTime) {
+                handlePageLeave();
+            }
+        }
+
+        function handleBeforeUnload(e) {
+            if (!state.testSubmitted && state.startTime) {
+                e.preventDefault();
+                e.returnValue = 'Your test progress will be lost if you leave this page. Are you sure?';
+            }
+        }
+
+        function handlePageLeave() {
+            state.leaveCount++;
+            updateLeaveCounter();
+            
+            if (state.leaveCount <= CONFIG.maxLeaves) {
+                showLeaveWarning();
+            }
+            
+            if (state.leaveCount > CONFIG.maxLeaves) {
+                alert('You have left the page too many times. Your test is being submitted automatically.');
+                submitTest();
+            }
+        }
+
+        function showLeaveWarning() {
+            const warning = document.getElementById('leaveWarning');
+            warning.style.display = 'block';
+            setTimeout(() => {
+                warning.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateLeaveCounter() {
+            document.getElementById('leaveCount').textContent = `${state.leaveCount}/${CONFIG.maxLeaves}`;
         }
 
         function startTest() {
-            const name = document.getElementById('studentName').value.trim();
+            const nameInput = document.getElementById('studentName');
+            const name = nameInput.value.trim();
+            
             if (!name) {
-                alert('Please enter your name');
+                alert('Please enter your name to start the test.');
+                nameInput.focus();
                 return;
             }
 
-            studentName = name;
-            startTime = new Date();
+            state.studentName = name;
+            state.startTime = new Date();
             
-            document.getElementById('currentStudentName').textContent = name;
             showScreen('testScreen');
+            document.getElementById('currentStudentName').textContent = name;
             
             startTimer();
             renderQuestions();
+            updateLeaveCounter();
+
+            // Scroll to top on mobile
+            window.scrollTo(0, 0);
         }
 
         function startTimer() {
-            updateTimer();
+            updateTimerDisplay();
             
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                updateTimer();
+            state.timerInterval = setInterval(() => {
+                state.timeLeft--;
+                updateTimerDisplay();
                 
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    alert('Time is up!');
+                if (state.timeLeft <= 0) {
+                    clearInterval(state.timerInterval);
+                    alert('Time is up! Your test is being submitted automatically.');
                     submitTest();
                 }
             }, 1000);
         }
 
-        function updateTimer() {
-            const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            const seconds = (timeLeft % 60).toString().padStart(2, '0');
+        function updateTimerDisplay() {
+            const minutes = Math.floor(state.timeLeft / 60).toString().padStart(2, '0');
+            const seconds = (state.timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').textContent = `${minutes}:${seconds}`;
+            
+            // Update progress bar
+            const progressPercentage = (state.timeLeft / CONFIG.totalTime) * 100;
+            document.getElementById('timeProgress').style.width = `${progressPercentage}%`;
+            
+            // Update timer style
+            updateTimerStyle();
+        }
+
+        function updateTimerStyle() {
             const timer = document.getElementById('timerDisplay');
+            timer.className = 'timer ';
             
-            timer.textContent = `${minutes}:${seconds}`;
-            timer.className = 'timer';
-            
-            if (timeLeft < 60) {
-                timer.classList.add('danger');
-            } else if (timeLeft < 300) {
+            if (state.timeLeft > 300) {
+                timer.classList.add('normal');
+            } else if (state.timeLeft > 60) {
                 timer.classList.add('warning');
+            } else {
+                timer.classList.add('danger');
             }
         }
 
         function renderQuestions() {
             const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
+            let html = '';
             
-            QUESTIONS.forEach((question, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'question';
-                
-                questionDiv.innerHTML = `
-                    <div class="question-number">Question ${index + 1}</div>
-                    <div class="question-text">${question.question}</div>
-                    <div class="options">
-                        ${question.options.map((option, optIndex) => `
-                            <div class="option ${answers[index] === optIndex ? 'selected' : ''}" 
-                                 onclick="selectAnswer(${index}, ${optIndex})">
-                                ${String.fromCharCode(65 + optIndex)}) ${option}
-                            </div>
-                        `).join('')}
-                    </div>
+            CONFIG.questions.forEach((question, index) => {
+                html += `
+                    <div class="question">
+                        <div class="question-number">Question ${index + 1}</div>
+                        <div class="question-text">${question.question}</div>
+                        <div class="options">
                 `;
                 
-                container.appendChild(questionDiv);
+                question.options.forEach((option, optIndex) => {
+                    const isSelected = state.answers[index] === optIndex;
+                    html += `
+                        <div class="option ${isSelected ? 'selected' : ''}" 
+                             onclick="selectAnswer(${index}, ${optIndex})"
+                             ontouchstart="this.style.transform='scale(0.98)'"
+                             ontouchend="this.style.transform=''">
+                            ${String.fromCharCode(65 + optIndex)}) ${option}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
             });
+            
+            container.innerHTML = html;
         }
 
         function selectAnswer(questionIndex, optionIndex) {
-            answers[questionIndex] = optionIndex;
-            renderQuestions();
+            state.answers[questionIndex] = optionIndex;
+            
+            // Update UI with smooth animation
+            const questionElement = document.getElementById('questionsContainer').children[questionIndex];
+            const options = questionElement.querySelectorAll('.option');
+            
+            options.forEach((option, idx) => {
+                if (idx === optionIndex) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
         }
 
         async function submitTest() {
-            if (testSubmitted) return;
+            if (state.testSubmitted) return;
             
-            testSubmitted = true;
-            clearInterval(timerInterval);
+            state.testSubmitted = true;
+            clearInterval(state.timerInterval);
+            
             showScreen('loadingScreen');
 
+            // Prepare test data
             const testData = {
-                studentName: studentName,
-                startTime: startTime.toISOString(),
+                studentName: state.studentName,
+                startTime: state.startTime.toISOString(),
                 endTime: new Date().toISOString(),
-                timeSpent: 600 - timeLeft,
-                timeLeft: timeLeft,
-                leaveCount: leaveCount,
-                answers: answers,
-                questions: QUESTIONS.map((q, index) => ({
+                timeSpent: CONFIG.totalTime - state.timeLeft,
+                timeLeft: state.timeLeft,
+                leaveCount: state.leaveCount,
+                answers: state.answers,
+                questions: CONFIG.questions.map((q, index) => ({
                     question: q.question,
                     options: q.options,
-                    selected: answers[index],
+                    selected: state.answers[index],
                     correct: q.correct
                 }))
             };
 
             try {
-                console.log('Submitting test...', testData);
+                console.log('Submitting test data...');
                 
                 const response = await fetch('/api/submit', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(testData)
                 });
@@ -460,6 +890,8 @@
                 console.log('Response status:', response.status);
                 
                 if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', errorText);
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
@@ -467,35 +899,50 @@
                 console.log('Response data:', result);
                 
                 if (result.success) {
-                    document.getElementById('completedStudentName').textContent = studentName;
-                    showScreen('completionScreen');
+                    showCompletionScreen();
                 } else {
                     throw new Error(result.error || 'Submission failed');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('errorMessage').textContent = 
-                    'Error submitting test. Please try again. Error: ' + error.message;
-                document.getElementById('errorMessage').style.display = 'block';
-                showScreen('testScreen');
-                testSubmitted = false;
-                
-                // Restart timer
-                if (timeLeft > 0) {
-                    timerInterval = setInterval(() => {
-                        timeLeft--;
-                        updateTimer();
-                        
-                        if (timeLeft <= 0) {
-                            clearInterval(timerInterval);
-                            submitTest();
-                        }
-                    }, 1000);
-                }
+                console.error('Submission error:', error);
+                showError('There was an error submitting your test. Please try again. Error: ' + error.message);
             }
         }
 
-        // Make functions global
+        function showCompletionScreen() {
+            document.getElementById('completedStudentName').textContent = state.studentName;
+            showScreen('completionScreen');
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            showScreen('testScreen');
+            state.testSubmitted = false;
+            
+            // Restart timer if there's time left
+            if (state.timeLeft > 0) {
+                startTimer();
+            }
+        }
+
+        function showScreen(screenName) {
+            // Hide all screens
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('testScreen').classList.add('hidden');
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('completionScreen').classList.add('hidden');
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Show target screen
+            document.getElementById(screenName).classList.remove('hidden');
+            
+            // Scroll to top when changing screens
+            window.scrollTo(0, 0);
+        }
+
+        // Make functions globally available
         window.startTest = startTest;
         window.submitTest = submitTest;
         window.selectAnswer = selectAnswer;
