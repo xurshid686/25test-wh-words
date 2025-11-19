@@ -2,26 +2,23 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/**/*.js",
+      "src": "api/submit.js",
       "use": "@vercel/node"
     },
     {
-      "src": "*.html",
+      "src": "index.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/index.html"
+      "src": "/api/submit",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/submit.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
-  ],
-  "env": {
-    "TELEGRAM_BOT_TOKEN": "@telegram-bot-token",
-    "TELEGRAM_CHAT_ID": "@telegram-chat-id"
-  }
+  ]
 }
