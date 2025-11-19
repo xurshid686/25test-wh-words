@@ -1,14 +1,16 @@
-const fetch = require('node-fetch');
+const telegramBot = require('node-telegram-bot-api');
 
 module.exports = async (req, res) => {
   // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-  // Handle preflight
+  // Handle preflight request
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    res.status(200).end();
+    return;
   }
 
   if (req.method !== 'POST') {
@@ -16,159 +18,177 @@ module.exports = async (req, res) => {
   }
 
   try {
-    console.log('=== TEST SUBMISSION STARTED ===');
+    const testData = req.body;
     
-    // Parse request body
-    let testData;
-    if (typeof req.body === 'string') {
-      testData = JSON.parse(req.body);
-    } else {
-      testData = req.body;
+    // Validate required data
+    if (!testData.studentName || !testData.answers) {
+      return res.status(400).json({ error: 'Missing required data' });
     }
-
-    console.log('Received from:', testData.studentName);
 
     // Calculate results
-    const totalQuestions = testData.questions.length;
-    let correctAnswers = 0;
-    const results = [];
-
-    testData.questions.forEach((q, index) => {
-      const isCorrect = q.selected === q.correct;
-      if (isCorrect) correctAnswers++;
-      
-      results.push({
-        question: q.question,
-        studentAnswer: q.selected !== undefined ? q.options[q.selected] : 'Not answered',
-        correctAnswer: q.options[q.correct],
-        isCorrect: isCorrect
-      });
-    });
-
-    const score = Math.round((correctAnswers / totalQuestions) * 100);
-    const timeSpent = `${Math.floor(testData.timeSpent / 60)}m ${testData.timeSpent % 60}s`;
-
-    // Create Telegram message
-    let message = `🎓 *English Test Submission*\\n\\n`;
-    message += `👤 *Student:* ${testData.studentName}\\n`;
-    message += `⏱️ *Time Spent:* ${timeSpent}\\n`;
-    message += `📊 *Score:* ${correctAnswers}/${totalQuestions} (${score}%)\\n`;
-    message += `🚪 *Page Leaves:* ${testData.leaveCount}\\n\\n`;
+    const results = calculateResults(testData);
     
-    message += `*Detailed Results:*\\n`;
-    message += `═══════════════════\\n\\n`;
-
-    results.forEach((result, index) => {
-      const emoji = result.isCorrect ? '✅' : '❌';
-      message += `${emoji} *Q${index + 1}:* ${result.question}\\n`;
-      message += `   *Student:* ${result.studentAnswer}\\n`;
-      if (!result.isCorrect) {
-        message += `   *Correct:* ${result.correctAnswer}\\n`;
-      }
-      message += `\\n`;
-    });
-
-    message += `═══════════════════\\n`;
-    message += `🏆 *Final Score: ${score}%*\\n`;
-    message += `📅 ${new Date().toLocaleString()}`;
-
-    console.log('Telegram message created, length:', message.length);
-
     // Send to Telegram
-    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+    await sendToTelegram(results);
     
-    console.log('Telegram config:', {
-      hasToken: !!TELEGRAM_BOT_TOKEN,
-      hasChatId: !!TELEGRAM_CHAT_ID,
-      tokenLength: TELEGRAM_BOT_TOKEN ? TELEGRAM_BOT_TOKEN.length : 0
-    });
-
-    let telegramSent = false;
-    let telegramError = null;
-
-    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-      try {
-        console.log('Sending to Telegram...');
-        
-        // Split message if too long
-        const messages = [];
-        if (message.length > 4000) {
-          const part1 = message.substring(0, 4000) + '\\n\\n...(continued)';
-          const part2 = '...(continued)\\n\\n' + message.substring(4000);
-          messages.push(part1, part2);
-        } else {
-          messages.push(message);
-        }
-
-        // Send each part
-        for (let i = 0; i < messages.length; i++) {
-          const telegramResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              chat_id: TELEGRAM_CHAT_ID,
-              text: messages[i],
-              parse_mode: 'Markdown'
-            })
-          });
-
-          const result = await telegramResponse.json();
-          
-          if (!result.ok) {
-            throw new Error(`Telegram error: ${result.description}`);
-          }
-          
-          console.log(`Telegram part ${i + 1} sent successfully`);
-          
-          // Wait between messages
-          if (i < messages.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
-        
-        telegramSent = true;
-        console.log('✅ All Telegram messages sent successfully');
-        
-      } catch (error) {
-        telegramError = error.message;
-        console.error('❌ Telegram error:', error);
-      }
-    } else {
-      console.log('⚠️ Telegram not configured - missing environment variables');
-    }
-
-    // Log results
-    console.log('📈 Test Results:', {
-      student: testData.studentName,
-      score: `${correctAnswers}/${totalQuestions}`,
-      percentage: score,
-      timeSpent: timeSpent,
-      telegramSent: telegramSent,
-      telegramError: telegramError
-    });
-
-    // Send response
-    res.status(200).json({
-      success: true,
+    // Return success response
+    res.status(200).json({ 
+      success: true, 
       message: 'Test submitted successfully',
-      data: {
-        studentName: testData.studentName,
-        score: `${correctAnswers}/${totalQuestions}`,
-        percentage: score,
-        telegramSent: telegramSent,
-        telegramError: telegramError
-      }
+      score: results.score,
+      correctAnswers: results.correctCount
     });
-
+    
   } catch (error) {
-    console.error('💥 Server error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      details: error.message
+    console.error('Error processing submission:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Internal server error: ' + error.message 
     });
   }
 };
+
+function calculateResults(testData) {
+  let correctCount = 0;
+  let wrongCount = 0;
+  let unansweredCount = 0;
+  const detailedResults = [];
+
+  testData.questions.forEach((question, index) => {
+    const studentAnswerIndex = testData.answers[index];
+    const isCorrect = studentAnswerIndex === question.correct;
+    const isAnswered = studentAnswerIndex !== undefined && studentAnswerIndex !== null;
+    
+    if (isAnswered) {
+      if (isCorrect) {
+        correctCount++;
+      } else {
+        wrongCount++;
+      }
+    } else {
+      unansweredCount++;
+    }
+
+    detailedResults.push({
+      questionNumber: index + 1,
+      question: question.question,
+      studentAnswer: isAnswered ? question.options[studentAnswerIndex] : 'Not answered',
+      correctAnswer: question.options[question.correct],
+      status: !isAnswered ? 'Unanswered' : (isCorrect ? 'Correct' : 'Wrong'),
+      isCorrect: isCorrect
+    });
+  });
+
+  const totalQuestions = testData.questions.length;
+  const score = Math.round((correctCount / totalQuestions) * 100);
+  
+  // Format time
+  const timeSpentFormatted = formatTime(testData.timeSpent);
+  const timeLeftFormatted = formatTime(testData.timeLeft);
+  
+  // Format submission date
+  const submissionDate = new Date(testData.endTime).toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+
+  return {
+    studentName: testData.studentName,
+    timeSpent: timeSpentFormatted,
+    timeLeft: timeLeftFormatted,
+    score: score,
+    correctCount: correctCount,
+    wrongCount: wrongCount,
+    unansweredCount: unansweredCount,
+    leaveCount: testData.leaveCount,
+    submissionDate: submissionDate,
+    totalQuestions: totalQuestions,
+    detailedResults: detailedResults
+  };
+}
+
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds}s`;
+}
+
+async function sendToTelegram(results) {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+
+  if (!botToken || !chatId) {
+    console.warn('Telegram credentials not found. Skipping Telegram notification.');
+    return;
+  }
+
+  try {
+    const bot = new telegramBot(botToken);
+    
+    // Create performance emoji
+    let performanceEmoji = '📊';
+    if (results.score >= 90) performanceEmoji = '🏆 Excellent';
+    else if (results.score >= 80) performanceEmoji = '🎯 Very Good';
+    else if (results.score >= 70) performanceEmoji = '👍 Good';
+    else if (results.score >= 60) performanceEmoji = '📈 Average';
+    else performanceEmoji = '📉 Needs Improvement';
+
+    // Main report
+    const mainReport = `🎓 ENGLISH TEST SUBMISSION
+
+👤 Student: ${results.studentName}
+⏱️ Time Spent: ${results.timeSpent}
+⏰ Time Left: ${results.timeLeft}
+📊 Score: ${results.correctCount}/${results.totalQuestions} (${results.score}%)
+✅ Correct: ${results.correctCount}
+❌ Wrong: ${results.wrongCount}
+⏭️ Unanswered: ${results.unansweredCount}
+🚪 Page Leaves: ${results.leaveCount}
+📅 Submitted: ${results.submissionDate}
+
+DETAILED RESULTS:
+═══════════════════════════════
+`;
+
+    // Send main report first
+    await bot.sendMessage(chatId, mainReport);
+
+    // Send detailed results in chunks to avoid message length limits
+    let detailedReport = '';
+    
+    results.detailedResults.forEach((result, index) => {
+      const statusEmoji = result.status === 'Correct' ? '✅' : (result.status === 'Wrong' ? '❌' : '⏭️');
+      const questionLine = `${statusEmoji} Question ${result.questionNumber}: ${result.question}\n   Student's Answer: ${result.studentAnswer}\n   Correct Answer: ${result.correctAnswer}\n   Status: ${result.status}\n\n`;
+      
+      // If adding this question would make the message too long, send current batch and start new one
+      if (detailedReport.length + questionLine.length > 4000) {
+        bot.sendMessage(chatId, detailedReport);
+        detailedReport = questionLine;
+      } else {
+        detailedReport += questionLine;
+      }
+    });
+
+    // Send any remaining detailed results
+    if (detailedReport) {
+      await bot.sendMessage(chatId, detailedReport);
+    }
+
+    // Send summary
+    const summaryReport = `═══════════════════════════════
+SUMMARY
+🏆 Final Score: ${results.score}%
+📈 Performance: ${performanceEmoji}`;
+
+    await bot.sendMessage(chatId, summaryReport);
+
+  } catch (error) {
+    console.error('Error sending to Telegram:', error);
+    throw new Error('Failed to send report to Telegram');
+  }
+}
