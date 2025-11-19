@@ -1,3 +1,5 @@
+const https = require('https');
+
 module.exports = async (req, res) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,7 +20,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    console.log('=== NEW TEST SUBMISSION ===');
+    console.log('🔔 NEW TEST SUBMISSION RECEIVED');
     
     let testData;
     
@@ -27,7 +29,7 @@ module.exports = async (req, res) => {
       try {
         testData = JSON.parse(req.body);
       } catch (e) {
-        console.error('JSON parse error:', e);
+        console.error('❌ JSON parse error:', e);
         return res.status(400).json({
           success: false,
           error: 'Invalid JSON data'
@@ -45,10 +47,10 @@ module.exports = async (req, res) => {
       });
     }
 
-    console.log('Student:', testData.studentName);
-    console.log('Time spent:', testData.timeSpent, 'seconds');
-    console.log('Time left:', testData.timeLeft, 'seconds');
-    console.log('Page leaves:', testData.leaveCount);
+    console.log('👤 Student:', testData.studentName);
+    console.log('⏱️ Time spent:', testData.timeSpent, 'seconds');
+    console.log('⏰ Time left:', testData.timeLeft, 'seconds');
+    console.log('🚪 Page leaves:', testData.leaveCount);
 
     // Calculate results
     const totalQuestions = testData.questions?.length || 0;
@@ -75,9 +77,9 @@ module.exports = async (req, res) => {
     const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-    console.log('Environment check:');
-    console.log('  TELEGRAM_BOT_TOKEN:', TELEGRAM_BOT_TOKEN ? 'SET' : 'NOT SET');
-    console.log('  TELEGRAM_CHAT_ID:', TELEGRAM_CHAT_ID ? 'SET' : 'NOT SET');
+    console.log('🔧 Environment check:');
+    console.log('  TELEGRAM_BOT_TOKEN:', TELEGRAM_BOT_TOKEN ? '✅ SET' : '❌ NOT SET');
+    console.log('  TELEGRAM_CHAT_ID:', TELEGRAM_CHAT_ID ? '✅ SET' : '❌ NOT SET');
 
     // Create detailed report
     let report = `🎓 *ENGLISH TEST SUBMISSION*\n\n`;
@@ -124,7 +126,7 @@ module.exports = async (req, res) => {
     report += `🏆 *Final Score:* ${score}%\n`;
     report += `📈 *Performance:* ${score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : score >= 40 ? 'Average' : 'Needs Improvement'}\n`;
 
-    console.log('Report generated, sending to Telegram...');
+    console.log('📋 Report generated, sending to Telegram...');
 
     // Send to Telegram
     let telegramSent = false;
@@ -132,7 +134,8 @@ module.exports = async (req, res) => {
 
     if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
       try {
-        await sendTelegramMessage(report, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID);
+        console.log('📤 Sending to Telegram...');
+        await sendToTelegram(report, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID);
         telegramSent = true;
         console.log('✅ Telegram message sent successfully');
       } catch (error) {
@@ -140,7 +143,9 @@ module.exports = async (req, res) => {
         console.error('❌ Telegram error:', error.message);
       }
     } else {
-      console.log('ℹ️ Telegram not configured');
+      console.log('ℹ️ Telegram not configured - environment variables missing');
+      console.log('📧 Report that would be sent to Telegram:');
+      console.log(report);
     }
 
     // Log results
@@ -170,42 +175,78 @@ module.exports = async (req, res) => {
   }
 };
 
-async function sendTelegramMessage(message, botToken, chatId) {
-  // Split message if too long (Telegram limit: 4096 characters)
-  if (message.length > 4000) {
-    const part1 = message.substring(0, 4000) + '\n\n... (continued)';
-    const part2 = '... (continued)\n\n' + message.substring(4000);
-    
-    await sendToTelegram(part1, botToken, chatId);
-    // Wait a bit before sending second part
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await sendToTelegram(part2, botToken, chatId);
-  } else {
-    await sendToTelegram(message, botToken, chatId);
-  }
-}
+function sendToTelegram(message, botToken, chatId) {
+  return new Promise((resolve, reject) => {
+    // Split message if too long (Telegram limit: 4096 characters)
+    const messages = [];
+    if (message.length > 4000) {
+      const part1 = message.substring(0, 4000) + '\n\n... (continued)';
+      const part2 = '... (continued)\n\n' + message.substring(4000);
+      messages.push(part1, part2);
+    } else {
+      messages.push(message);
+    }
 
-async function sendToTelegram(text, botToken, chatId) {
-  const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: text,
-      parse_mode: 'Markdown',
-      disable_web_page_preview: true
-    })
+    let sentCount = 0;
+    const totalMessages = messages.length;
+
+    function sendNextMessage() {
+      if (sentCount >= totalMessages) {
+        resolve();
+        return;
+      }
+
+      const text = messages[sentCount];
+      const data = JSON.stringify({
+        chat_id: chatId,
+        text: text,
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true
+      });
+
+      const options = {
+        hostname: 'api.telegram.org',
+        port: 443,
+        path: `/bot${botToken}/sendMessage`,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': data.length
+        }
+      };
+
+      const req = https.request(options, (res) => {
+        let responseData = '';
+
+        res.on('data', (chunk) => {
+          responseData += chunk;
+        });
+
+        res.on('end', () => {
+          try {
+            const result = JSON.parse(responseData);
+            if (result.ok) {
+              console.log(`✅ Telegram message ${sentCount + 1}/${totalMessages} sent successfully`);
+              sentCount++;
+              // Wait 1 second before sending next message
+              setTimeout(sendNextMessage, 1000);
+            } else {
+              reject(new Error(`Telegram API error: ${result.description}`));
+            }
+          } catch (e) {
+            reject(new Error(`Failed to parse Telegram response: ${e.message}`));
+          }
+        });
+      });
+
+      req.on('error', (error) => {
+        reject(new Error(`Telegram request failed: ${error.message}`));
+      });
+
+      req.write(data);
+      req.end();
+    }
+
+    sendNextMessage();
   });
-
-  const result = await response.json();
-  
-  if (!result.ok) {
-    throw new Error(result.description || 'Telegram API error');
-  }
-  
-  return result;
 }
